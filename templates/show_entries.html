@@ -1,0 +1,54 @@
+{% extends "layout.html" %}
+{% block head %}
+{{super()}}
+{% for entry in entries %}
+        <script>
+        $(document).ready(function(){
+          $("button{{ entry.switch_channel }}{{ entry.switch_button }}on").click(function(){
+            $.get("/flickswitch/{{ entry.switch_channel }}/{{ entry.switch_button }}/on",function(data,status){
+              alert("Data: " + data + "\nStatus: " + status);
+            });
+          });
+        });
+        </script>
+        <script>
+        $(document).ready(function(){
+          $("button{{ entry.switch_channel }}{{ entry.switch_button }}off").click(function(){
+            $.get("/flickswitch/{{ entry.switch_channel }}/{{ entry.switch_button }}/off",function(data,status){
+              alert("Data: " + data + "\nStatus: " + status);
+            });
+          });
+        });
+        </script>
+
+{% endfor %}
+{% endblock %}
+{% block body %}
+{{super()}}
+<div class ="container">
+  {% if session.logged_in %}
+    <form action="{{ url_for('add_entry') }}" method=post class=add-entry>
+      <dl>
+        <dt>Switch Name:
+        <dd><input type=text size=30 name=switch_name>
+        <dt>Switch Channel:
+	<dd><input type=text size=30 name=switch_channel>	
+        <dt>Switch Button:
+        <dd><input type=text size=30 name=switch_button>
+        <dd><input type=submit value=Share>
+      </dl>
+    </form>
+  {% endif %}
+  <ul class=entries>
+  {% for entry in entries %}
+    <li><h2>{{ entry.switch_name }}</h2>
+        <div class="btn-group">
+        <button{{ entry.switch_channel }}{{ entry.switch_button }}on type="button" class="btn btn-primary">On</button{{ entry.switch_channel }}{{ entry.switch_button }}on>
+        <button{{ entry.switch_channel }}{{ entry.switch_button }}off type="button" class="btn btn-inverse">Off</button{{ entry.switch_channel }}{{ entry.switch_button }}off>
+        </div>
+  {% else %}
+    <li><em>Unbelievable.  No entries here so far</em>
+  {% endfor %}
+  </ul>
+</div>
+{% endblock %}
