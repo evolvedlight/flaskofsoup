@@ -12,7 +12,7 @@ Bootstrap(app)
 
 # Load default config and override config from an environment variable
 app.config.update(dict(
-    DATABASE='/tmp/flaskr.db',
+    DATABASE='/home/server/flaskr.db',
     DEBUG=True,
     SECRET_KEY='development key',
     USERNAME='admin',
@@ -56,18 +56,23 @@ def close_db(error):
 @app.route('/')
 def show_entries():
     db = get_db()
-    cur = db.execute('select switch_name, switch_channel, switch_button from entries order by id desc')
+    cur = db.execute('select switch_name, switch_channel, switch_button, switch_last_state from entries order by id desc')
     entries = cur.fetchall()
     return render_template('show_entries.html', entries=entries)
 
 
 @app.route('/flickswitch/<channel>/<button>/<on>', methods = ['GET'])
 def switch(channel,button,on):
+	db = get_db()
         if on == 'on':
                 state = True
-        else:
+		db.execute("update entries set switch_last_state = 'on' where switch_channel = ? and switch_button = ?",[channel,button])
+        	db.commit()
+	else:
                 state = False
-        for i in range(1,8):
+		db.execute("update entries set switch_last_state = 'off' where switch_channel = ? and switch_button = ?",[channel,button])
+        	db.commit()
+	for i in range(1,8):
                 send_command(pin,int(channel),int(button),state)
         return 'ok'
 
@@ -81,6 +86,18 @@ def add_entry():
                  [request.form['switch_name'], request.form['switch_channel'], request.form['switch_button']])
     db.commit()
     flash('New entry was successfully posted')
+    return redirect(url_for('show_entries'))
+
+
+@app.route('/delete', methods=['POST'])
+def delete_entry():
+    if not session.get('logged_in'):
+        abort(401)
+    db = get_db()
+    db.execute('delete from entries where switch_name = ?',
+                 [request.form['switch_to_delete']])
+    db.commit()
+    flash('Entry successfully deleted')
     return redirect(url_for('show_entries'))
 
 
@@ -107,6 +124,6 @@ def logout():
 
 
 if __name__ == '__main__':
-    init_db()
+    #init_db() #Uncomment for a clean start
     app.run(host='0.0.0.0')
 
