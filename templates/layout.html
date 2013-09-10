@@ -24,14 +24,14 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </a>
-          <a class="brand" href="#">No Disco</a>
+          <a class="brand" href="#">Crystal Maze Control</a>
           <div class="nav-collapse">
             <ul class="nav">
               <li class="active"><a href="#">Home</a></li>
 		{% if not session.logged_in %}
-		<li><a href="/login">Login</a></li>
+		<li><a href="login">Login</a></li>
 		{% else %}
-		<li><a href="/logout">Logout</a></li>
+		<li><a href="logout">Logout</a></li>
 		{% endif %}
             </ul>
           </div><!--/.nav-collapse -->

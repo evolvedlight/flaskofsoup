@@ -5,23 +5,24 @@
         <script>
         $(document).ready(function(){
           $("button{{ entry.switch_channel }}{{ entry.switch_button }}on").click(function(){
-            $.get("/flickswitch/{{ entry.switch_channel }}/{{ entry.switch_button }}/on",function(data,status){
-              alert("Data: " + data + "\nStatus: " + status);
-            });
+            $.get("/flickswitch/{{ entry.switch_channel }}/{{ entry.switch_button }}/on"
+            );
           });
         });
         </script>
         <script>
         $(document).ready(function(){
           $("button{{ entry.switch_channel }}{{ entry.switch_button }}off").click(function(){
-            $.get("/flickswitch/{{ entry.switch_channel }}/{{ entry.switch_button }}/off",function(data,status){
-              alert("Data: " + data + "\nStatus: " + status);
-            });
+            $.get("/flickswitch/{{ entry.switch_channel }}/{{ entry.switch_button }}/off"
+            );
           });
         });
         </script>
 
 {% endfor %}
+{% endblock %}
+{% block style %}
+{{super()}}
 {% endblock %}
 {% block body %}
 {{super()}}
@@ -41,21 +42,27 @@
   {% endif %}
   <ul class=entries>
   {% for entry in entries %}
-    <li><h2>{{ entry.switch_name }}</h2>
+    <h2>{{ entry.switch_name }}</h2>
 	<div class="btn-toolbar">
 	        <div class="btn-group">
 	        	<button{{ entry.switch_channel }}{{ entry.switch_button }}on type="button" class="btn btn-primary">On</button{{ entry.switch_channel }}{{ entry.switch_button }}on>
 	        	<button{{ entry.switch_channel }}{{ entry.switch_button }}off type="button" class="btn btn-inverse">Off</button{{ entry.switch_channel }}{{ entry.switch_button }}off>
 	        </div>
+		{% if entry.switch_last_state == 'on' %}
+		<div class="btn-group">
+		<div>
+                        <button{{ entry.switch_channel }}{{ entry.switch_button }}switch_last_state type="button" class="btn btn-default">
+                                State: On
+                        </button>
+		</div>
+		</div>
+		{% endif %}
 		{% if session.logged_in %}
                 <div class="btn-group">
-                        <form action="{{ url_for('delete_entry') }}" method=post class=delete-entry>
-			<input class="btn btn-danger" type=submit value={{ entry.switch_name }} name=switch_to_delete>
-                        </form>
+			<a href="delete/{{ entry.switch_name }}" class="btn btn-danger">X</a>
                 </div>
 		{% endif %}
 	</div>
-	<p>{{ entry.switch_last_state }}</p>
   {% else %}
     <li><em>Unbelievable.  No entries here so far</em>
   {% endfor %}

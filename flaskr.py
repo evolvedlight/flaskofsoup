@@ -89,15 +89,13 @@ def add_entry():
     return redirect(url_for('show_entries'))
 
 
-@app.route('/delete', methods=['POST'])
-def delete_entry():
+@app.route('/delete/<switch_name>', methods=['GET'])
+def delete_entry(switch_name):
     if not session.get('logged_in'):
         abort(401)
     db = get_db()
-    db.execute('delete from entries where switch_name = ?',
-                 [request.form['switch_to_delete']])
+    db.execute('delete from entries where switch_name = ?',[switch_name])
     db.commit()
-    flash('Entry successfully deleted')
     return redirect(url_for('show_entries'))
 
 
