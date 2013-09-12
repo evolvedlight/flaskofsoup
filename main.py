@@ -3,16 +3,25 @@ from flask import Flask, request, session, g, redirect, url_for, abort, render_t
 from flask.ext.bootstrap import Bootstrap
 from jinja2 import Template
 from strogonanoff_sender import send_command
-from WiringPin import WiringPin
+#from WiringPin import WiringPin
+from sys import platform as _platform
 
 # create our little application :)
 app = Flask(__name__)
-pin = WiringPin(0).export()
 Bootstrap(app)
+
+
+#Allow for development on Windows since wiringpi (dependency of WiringPin) can't be installed
+if _platform =="win32":
+    pin = '0'
+else:
+    from WiringPin import WiringPin
+    pin = WiringPin(0).export()
+
 
 # Load default config and override config from an environment variable
 app.config.update(dict(
-    DATABASE='/home/server/flaskr.db',
+    DATABASE='lights.db',
     DEBUG=True,
     SECRET_KEY='development key',
     USERNAME='admin',
@@ -122,6 +131,9 @@ def logout():
 
 
 if __name__ == '__main__':
-    #init_db() #Uncomment for a clean start
+    try:
+        with open(app.config['DATABASE']): pass
+    except IOError:
+        init_db()
     app.run(host='0.0.0.0')
 
